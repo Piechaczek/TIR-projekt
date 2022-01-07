@@ -29,7 +29,6 @@ def on_message(mqttc, obj, msg):
                 if sector["sensor_id"] == id:
                     sector_id = int(sector["id"])
                     desired_humidity = int(sector["desired_humidity"])
-                    # mqttc.subscribe("agh/iot/project9/simulation/area/"+str(sector_id)+"/rain", 2)
 
         except Exception as e:
             print("json with incorrect format, "+str(e))
