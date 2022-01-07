@@ -1,0 +1,871 @@
+[
+    {
+        "id": "e3babf8ac1b8eec4",
+        "type": "tab",
+        "label": "Sensor read flow",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "8d8c019b06826671",
+        "type": "tab",
+        "label": "Sensor query flow",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "36797bf59db7c6d4",
+        "type": "tab",
+        "label": "Sprinkler end flow",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "55af92c6a2960dda",
+        "type": "tab",
+        "label": "Config flow",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "a2ae0e30dd64e67f",
+        "type": "mqtt-broker",
+        "name": "",
+        "broker": "mqtt.eclipseprojects.io",
+        "port": "1883",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": "",
+        "willMsg": {},
+        "sessionExpiry": ""
+    },
+    {
+        "id": "4efdaaba780eac74",
+        "type": "mqtt-broker",
+        "name": "",
+        "broker": "broker.emqx.io",
+        "port": "1883",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": "",
+        "willMsg": {},
+        "sessionExpiry": ""
+    },
+    {
+        "id": "526a5d6184b9b516",
+        "type": "mqtt in",
+        "z": "e3babf8ac1b8eec4",
+        "name": "",
+        "topic": "agh/iot/project9/sensor/+/humidity",
+        "qos": "2",
+        "datatype": "auto",
+        "broker": "4efdaaba780eac74",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 170,
+        "y": 80,
+        "wires": [
+            [
+                "ca0db80a3f57929f"
+            ]
+        ]
+    },
+    {
+        "id": "ca0db80a3f57929f",
+        "type": "function",
+        "z": "e3babf8ac1b8eec4",
+        "name": "Read sector",
+        "func": "msg.sensor_id = msg.topic.split('/')[4];\nvar sector;\nfor (const sector of global.get(\"config\").sectors){\n    if (sector.sensor_id == msg.sensor_id){\n        msg.sector = sector;\n        break;\n    }\n}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 250,
+        "y": 140,
+        "wires": [
+            [
+                "329294a13412d8b7"
+            ]
+        ]
+    },
+    {
+        "id": "3a9a13447a9c1915",
+        "type": "switch",
+        "z": "e3babf8ac1b8eec4",
+        "name": "Is humidity too low?",
+        "property": "sector.desired_humidity",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "lt",
+                "v": "payload",
+                "vt": "msg"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 410,
+        "y": 260,
+        "wires": [
+            [
+                "12de6e67404c9851"
+            ],
+            [
+                "ba39f3cd3b2ad2ea",
+                "c934f7e3fc51dd8b"
+            ]
+        ]
+    },
+    {
+        "id": "12de6e67404c9851",
+        "type": "debug",
+        "z": "e3babf8ac1b8eec4",
+        "name": "humidity in sector x is fine",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "\"humidity in sector \" & sector.id & \" is fine\"",
+        "targetType": "jsonata",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 650,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "ba39f3cd3b2ad2ea",
+        "type": "debug",
+        "z": "e3babf8ac1b8eec4",
+        "name": "humidity in sector x is too low",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "\"humidity in sector \" & sector.id & \" is too low\"",
+        "targetType": "jsonata",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 660,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "b49f42d0763d0a95",
+        "type": "http request",
+        "z": "e3babf8ac1b8eec4",
+        "name": "Http weather request",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "query",
+        "url": "api.openweathermap.org/data/2.5/onecall?",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "senderr": false,
+        "x": 760,
+        "y": 380,
+        "wires": [
+            [
+                "9eb18850d5f61f87"
+            ]
+        ]
+    },
+    {
+        "id": "9eb18850d5f61f87",
+        "type": "function",
+        "z": "e3babf8ac1b8eec4",
+        "name": "Will it rain today?",
+        "func": "var hourly = msg.payload.hourly;\nvar i;\nfor (i = 0; i < 24; i++){\n    if (hourly[i].weather[0].main == \"Rain\"){\n        msg.payload = true;\n        return msg;\n    }\n}\nmsg.payload = false;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 810,
+        "y": 440,
+        "wires": [
+            [
+                "3578b87eff09c073"
+            ]
+        ]
+    },
+    {
+        "id": "6f9b405fbda40f78",
+        "type": "debug",
+        "z": "e3babf8ac1b8eec4",
+        "name": "...but it's gonna rain",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "\"...but it's gonna rain\"",
+        "targetType": "jsonata",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1350,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "3578b87eff09c073",
+        "type": "switch",
+        "z": "e3babf8ac1b8eec4",
+        "name": "",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "true"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 970,
+        "y": 440,
+        "wires": [
+            [
+                "35431f3f6eb6d3a6"
+            ],
+            [
+                "675e15baf25c6aa1",
+                "e557c2c60e59de01"
+            ]
+        ]
+    },
+    {
+        "id": "675e15baf25c6aa1",
+        "type": "debug",
+        "z": "e3babf8ac1b8eec4",
+        "name": "...and it's not gonna rain",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "\"...and it's not gonna rain\"",
+        "targetType": "jsonata",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1190,
+        "y": 460,
+        "wires": []
+    },
+    {
+        "id": "c934f7e3fc51dd8b",
+        "type": "change",
+        "z": "e3babf8ac1b8eec4",
+        "name": "Set http query paramseters",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "{}",
+                "tot": "json"
+            },
+            {
+                "t": "set",
+                "p": "payload.appid",
+                "pt": "msg",
+                "to": "b0259270f4921df02fdce249d00caf88",
+                "tot": "str"
+            },
+            {
+                "t": "set",
+                "p": "payload.lat",
+                "pt": "msg",
+                "to": "config.lat",
+                "tot": "global"
+            },
+            {
+                "t": "set",
+                "p": "payload.lon",
+                "pt": "msg",
+                "to": "config.lon",
+                "tot": "global"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 660,
+        "y": 320,
+        "wires": [
+            [
+                "b49f42d0763d0a95"
+            ]
+        ]
+    },
+    {
+        "id": "0388101b634ff599",
+        "type": "switch",
+        "z": "e3babf8ac1b8eec4",
+        "name": "Is there a sector already running?",
+        "property": "sector_running",
+        "propertyType": "global",
+        "rules": [
+            {
+                "t": "true"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 1340,
+        "y": 580,
+        "wires": [
+            [
+                "c266ac2c0d3e7932"
+            ],
+            [
+                "16693ac4ea4e8f53"
+            ]
+        ]
+    },
+    {
+        "id": "c266ac2c0d3e7932",
+        "type": "function",
+        "z": "e3babf8ac1b8eec4",
+        "name": "Add to waiting sectors queue",
+        "func": "global.get('waiting_sectors').push(msg.sector);\n\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "// Code added here will be run once\n// whenever the node is started.\nglobal.set('waiting_sectors', []);\nglobal.set('sector_running', false);\nglobal.set('sprinklers_running', []);\n\n// {   \n//     \"sectors\":      \n//     [       \n//         {            \n//             \"id\": \"sector_id1\",           \n//             \"sensor_id\": \"sensor_id1\",          \n//             \"desired_humidity\": 50,          \n//             \"sprinklers\":             \n//             [              \n//                 \"sprinkler_id1\", \"sprinkler_id2\"            \n//             ]        \n//         },        \n//         {            \n//             \"id\": \"sector_id2\",           \n//             \"sensor_id\": \"sensor_id2\",          \n//             \"desired_humidity\": 50,          \n//             \"sprinklers\":             \n//             [              \n//                 \"sprinkler_id3\", \"sprinkler_id4\", \"sprinkler_id5\"            \n//             ]        \n//         }     \n//     ],   \n//     \"lat\": 56,    \n//     \"lon\": 65 \n// }",
+        "finalize": "",
+        "libs": [],
+        "x": 1640,
+        "y": 560,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "16693ac4ea4e8f53",
+        "type": "function",
+        "z": "e3babf8ac1b8eec4",
+        "name": "Activate sprinklers in sector",
+        "func": "global.set('sector_running', true);\n\nlet sector = msg.sector;\n\nlet sec_sprinklers = [];\nfor(let i=0; i<sector.sprinklers.length; i++){\n    sec_sprinklers.push(sector.sprinklers[i]);\n}\nglobal.set('sprinklers_running', sec_sprinklers);\n\nreturn {'payload': sector.id};\n\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "// Code added here will be run once\n// whenever the node is started.\nglobal.set('waiting_sectors', []);\nglobal.set('sector_running', false);\nglobal.set('sprinklers_running', []);\n\n// {   \n//     \"sectors\":      \n//     [       \n//         {            \n//             \"id\": \"sector_id1\",           \n//             \"sensor_id\": \"sensor_id1\",          \n//             \"desired_humidity\": 50,          \n//             \"sprinklers\":             \n//             [              \n//                 \"sprinkler_id1\", \"sprinkler_id2\"            \n//             ]        \n//         },        \n//         {            \n//             \"id\": \"sector_id2\",           \n//             \"sensor_id\": \"sensor_id2\",          \n//             \"desired_humidity\": 50,          \n//             \"sprinklers\":             \n//             [              \n//                 \"sprinkler_id3\", \"sprinkler_id4\", \"sprinkler_id5\"            \n//             ]        \n//         }     \n//     ],   \n//     \"lat\": 56,    \n//     \"lon\": 65 \n// }",
+        "finalize": "",
+        "libs": [],
+        "x": 1640,
+        "y": 600,
+        "wires": [
+            [
+                "8a7ce5e18c34fac8",
+                "488ce7408e364a10"
+            ]
+        ]
+    },
+    {
+        "id": "8a7ce5e18c34fac8",
+        "type": "mqtt out",
+        "z": "e3babf8ac1b8eec4",
+        "name": "",
+        "topic": "agh/iot/project9/active_sector",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "4efdaaba780eac74",
+        "x": 1940,
+        "y": 600,
+        "wires": []
+    },
+    {
+        "id": "488ce7408e364a10",
+        "type": "debug",
+        "z": "e3babf8ac1b8eec4",
+        "name": "activating sector x",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "\"activating sector \" & payload",
+        "targetType": "jsonata",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1910,
+        "y": 660,
+        "wires": []
+    },
+    {
+        "id": "329294a13412d8b7",
+        "type": "function",
+        "z": "e3babf8ac1b8eec4",
+        "name": "Check and add waiting sensor",
+        "func": "var sensors = global.get('sensors_waiting');\nfor(let sensor of sensors){\n    if(msg.sensor_id == sensor.id){\n        return null;\n    }\n}\nvar new_sensor = {id: msg.sensor_id, sprinklers: []};\nsensors.push(new_sensor);\nglobal.set('sensors_waiting', sensors);\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 330,
+        "y": 200,
+        "wires": [
+            [
+                "3a9a13447a9c1915"
+            ]
+        ]
+    },
+    {
+        "id": "e557c2c60e59de01",
+        "type": "function",
+        "z": "e3babf8ac1b8eec4",
+        "name": "Add sprinklers to sensor",
+        "func": "var sensors = global.get('sensors_waiting');\n\nlet sector = msg.sector;\n\nfor(let sensor of sensors){\n    if(msg.sensor_id == sensor.id){\n        let sen_sprinklers = sensor.sprinklers;\n        for(let sprinkler of sector.sprinklers){\n            sen_sprinklers.push(sprinkler);\n        }\n        sensor.sprinklers = sen_sprinklers;\n    }\n}\n\nglobal.set('sensors_waiting', sensors);\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1190,
+        "y": 520,
+        "wires": [
+            [
+                "0388101b634ff599"
+            ]
+        ]
+    },
+    {
+        "id": "35431f3f6eb6d3a6",
+        "type": "function",
+        "z": "e3babf8ac1b8eec4",
+        "name": "Remove waiting sensor",
+        "func": "var sensors = global.get('sensors_waiting');\nlet index = -1;\n\nfor(let i=0; i<sensors.length; i++){\n    if(sensors[i].id == msg.sensor_id){\n        index = i;\n        break;\n    }\n}\n\nif(index > -1){\n    sensors.splice(index, 1);\n}\n\nglobal.set('sensors_waiting', sensors);\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1190,
+        "y": 340,
+        "wires": [
+            [
+                "6f9b405fbda40f78"
+            ]
+        ]
+    },
+    {
+        "id": "2d5b87c452b4b647",
+        "type": "inject",
+        "z": "8d8c019b06826671",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "3600",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payloadType": "date",
+        "x": 160,
+        "y": 80,
+        "wires": [
+            [
+                "4f6b0bce8561ee1c"
+            ]
+        ]
+    },
+    {
+        "id": "4f6b0bce8561ee1c",
+        "type": "mqtt out",
+        "z": "8d8c019b06826671",
+        "name": "",
+        "topic": "agh/iot/project9/sensor/request",
+        "qos": "",
+        "retain": "false",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "4efdaaba780eac74",
+        "x": 410,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "d420417ff078f64f",
+        "type": "inject",
+        "z": "8d8c019b06826671",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "request",
+        "payloadType": "str",
+        "x": 150,
+        "y": 140,
+        "wires": [
+            [
+                "4f6b0bce8561ee1c"
+            ]
+        ]
+    },
+    {
+        "id": "3b343509fe09b91f",
+        "type": "mqtt in",
+        "z": "36797bf59db7c6d4",
+        "name": "",
+        "topic": "agh/iot/project9/sprinkler/+/state",
+        "qos": "2",
+        "datatype": "auto",
+        "broker": "4efdaaba780eac74",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 170,
+        "y": 80,
+        "wires": [
+            [
+                "9f27f9cce6384a6f",
+                "a5dcc0e8c01546b9"
+            ]
+        ]
+    },
+    {
+        "id": "627424d670508e05",
+        "type": "function",
+        "z": "36797bf59db7c6d4",
+        "name": "Remove from running list",
+        "func": "let rem_sprinkler = global.get('sprinklers_running');\nlet index = -1;\nfor (let i = 0; i<rem_sprinkler.length; i++){\n    if (rem_sprinkler[i] == msg.sprinkler_id){\n        index = i;\n        break;\n    }\n}\nif (index > -1) {\n  rem_sprinkler.splice(index, 1);\n}\nglobal.set('sprinklers_running', rem_sprinkler);\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "// Code added here will be run once\n// whenever the node is started.\nglobal.set('waiting_sectors', []);\nglobal.set('sector_running', false);\nglobal.set('sprinklers_running', []);\n\n// {   \n//     \"sectors\":      \n//     [       \n//         {            \n//             \"id\": \"sector_id1\",           \n//             \"sensor_id\": \"sensor_id1\",          \n//             \"desired_humidity\": 50,          \n//             \"sprinklers\":             \n//             [              \n//                 \"sprinkler_id1\", \"sprinkler_id2\"            \n//             ]        \n//         },        \n//         {            \n//             \"id\": \"sector_id2\",           \n//             \"sensor_id\": \"sensor_id2\",          \n//             \"desired_humidity\": 50,          \n//             \"sprinklers\":             \n//             [              \n//                 \"sprinkler_id3\", \"sprinkler_id4\", \"sprinkler_id5\"            \n//             ]        \n//         }     \n//     ],   \n//     \"lat\": 56,    \n//     \"lon\": 65 \n// }",
+        "finalize": "",
+        "libs": [],
+        "x": 490,
+        "y": 260,
+        "wires": [
+            [
+                "91d2a0e82fd9f6ff"
+            ]
+        ]
+    },
+    {
+        "id": "28c47d6230774079",
+        "type": "function",
+        "z": "36797bf59db7c6d4",
+        "name": "Read sprinkler id",
+        "func": "msg.sprinkler_id = msg.topic.split('/')[4];\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 370,
+        "y": 200,
+        "wires": [
+            [
+                "627424d670508e05"
+            ]
+        ]
+    },
+    {
+        "id": "4f4679ce4ad2ad44",
+        "type": "function",
+        "z": "36797bf59db7c6d4",
+        "name": "Activate next sector",
+        "func": "global.set('sector_running', false);\n\nif(global.get('waiting_sectors').length != 0){\n    global.set('sector_running', true);\n    let tab = global.get('waiting_sectors');\n    let message = tab.shift();\n    global.set('waiting_sectors', tab);\n    \n    let sektor = message;\n    \n    let sec_sprinklers = [];\n    for(let i=0; i<sektor.sprinklers.length; i++){\n        sec_sprinklers.push(sektor.sprinklers[i]);\n    }\n    global.set('sprinklers_running', sec_sprinklers);\n    \n    return { \"payload\": sektor.id };\n}   \n\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "// Code added here will be run once\n// whenever the node is started.\nglobal.set('waiting_sectors', []);\nglobal.set('sector_running', false);\nglobal.set('sprinklers_running', []);\n\n// {   \n//     \"sectors\":      \n//     [       \n//         {            \n//             \"id\": \"sector_id1\",           \n//             \"sensor_id\": \"sensor_id1\",          \n//             \"desired_humidity\": 50,          \n//             \"sprinklers\":             \n//             [              \n//                 \"sprinkler_id1\", \"sprinkler_id2\"            \n//             ]        \n//         },        \n//         {            \n//             \"id\": \"sector_id2\",           \n//             \"sensor_id\": \"sensor_id2\",          \n//             \"desired_humidity\": 50,          \n//             \"sprinklers\":             \n//             [              \n//                 \"sprinkler_id3\", \"sprinkler_id4\", \"sprinkler_id5\"            \n//             ]        \n//         }     \n//     ],   \n//     \"lat\": 56,    \n//     \"lon\": 65 \n// }",
+        "finalize": "",
+        "libs": [],
+        "x": 1050,
+        "y": 500,
+        "wires": [
+            [
+                "6194003e13a0c7b3",
+                "9c3015c1055b2450"
+            ]
+        ]
+    },
+    {
+        "id": "e7dc82d494455ba3",
+        "type": "switch",
+        "z": "36797bf59db7c6d4",
+        "name": "Are all sprinklers off?",
+        "property": "sprinklers_running",
+        "propertyType": "global",
+        "rules": [
+            {
+                "t": "empty"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 780,
+        "y": 380,
+        "wires": [
+            [
+                "de25b13859f11dd0"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "6194003e13a0c7b3",
+        "type": "mqtt out",
+        "z": "36797bf59db7c6d4",
+        "name": "",
+        "topic": "agh/iot/project9/active_sector",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "4efdaaba780eac74",
+        "x": 1300,
+        "y": 460,
+        "wires": []
+    },
+    {
+        "id": "9c3015c1055b2450",
+        "type": "debug",
+        "z": "36797bf59db7c6d4",
+        "name": "activating sector x",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "\"activating sector \" & payload",
+        "targetType": "jsonata",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1270,
+        "y": 540,
+        "wires": []
+    },
+    {
+        "id": "91d2a0e82fd9f6ff",
+        "type": "function",
+        "z": "36797bf59db7c6d4",
+        "name": "Remove from sensor sprinklers",
+        "func": "var sensors = global.get('sensors_waiting');\nfor(let sensor of sensors){\n    let rem_sprinkler = sensor.sprinklers;\n    let index = -1;\n    for(let i=0; i<rem_sprinkler.length; i++){\n        if(rem_sprinkler[i] == msg.sprinkler_id){\n            index = i;\n            break;\n        }\n    }\n    if(index > -1){\n        rem_sprinkler.splice(index, 1);\n    }\n    \n    sensor.sprinklers = rem_sprinkler;\n}\nglobal.set('sensors_waiting', sensors);\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 650,
+        "y": 320,
+        "wires": [
+            [
+                "e7dc82d494455ba3"
+            ]
+        ]
+    },
+    {
+        "id": "de25b13859f11dd0",
+        "type": "function",
+        "z": "36797bf59db7c6d4",
+        "name": "Check empty sensors",
+        "func": "var sensors = global.get('sensors_waiting');\nlet index = -1;\n\nfor(let i=0; i<sensors.length; i++){\n    if(sensors[i].sprinklers.length == 0){\n        index = i;\n        break;\n    }\n}\n\nif(index > -1){\n    sensors.splice(index, 1);\n}\n\nglobal.set('sensors_waiting', sensors);\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 920,
+        "y": 440,
+        "wires": [
+            [
+                "4f4679ce4ad2ad44"
+            ]
+        ]
+    },
+    {
+        "id": "9f27f9cce6384a6f",
+        "type": "debug",
+        "z": "36797bf59db7c6d4",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "\"Got message from sprinkler \" & payload",
+        "targetType": "jsonata",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 440,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "a5dcc0e8c01546b9",
+        "type": "switch",
+        "z": "36797bf59db7c6d4",
+        "name": "Is off",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "0",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 270,
+        "y": 140,
+        "wires": [
+            [
+                "28c47d6230774079"
+            ]
+        ]
+    },
+    {
+        "id": "342e7971b3936fc4",
+        "type": "mqtt in",
+        "z": "55af92c6a2960dda",
+        "name": "",
+        "topic": "agh/iot/project9/config",
+        "qos": "2",
+        "datatype": "json",
+        "broker": "4efdaaba780eac74",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 140,
+        "y": 60,
+        "wires": [
+            [
+                "e5b418841d8021c5"
+            ]
+        ]
+    },
+    {
+        "id": "e5b418841d8021c5",
+        "type": "change",
+        "z": "55af92c6a2960dda",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "config",
+                "pt": "global",
+                "to": "payload",
+                "tot": "msg",
+                "dc": true
+            },
+            {
+                "t": "set",
+                "p": "sensors_waiting",
+                "pt": "global",
+                "to": "[]",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 420,
+        "y": 80,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "c06844b2524581ee",
+        "type": "inject",
+        "z": "55af92c6a2960dda",
+        "name": "Temporary inject for tests",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{        \"sectors\":           [                {                         \"id\": \"sector_id1\",                        \"sensor_id\": \"sensor_id1\",                       \"desired_humidity\": 50,                       \"sprinklers\":                          [                               \"sprinkler_id1\", \"sprinkler_id2\"                         ]                 },                 {                         \"id\": \"sector_id2\",                        \"sensor_id\": \"sensor_id2\",                       \"desired_humidity\": 50,                       \"sprinklers\":                          [                               \"sprinkler_id3\", \"sprinkler_id4\", \"sprinkler_id5\"                         ]                 }          ],        \"lat\": 56,         \"lon\": 65  }",
+        "payloadType": "json",
+        "x": 150,
+        "y": 120,
+        "wires": [
+            [
+                "e5b418841d8021c5"
+            ]
+        ]
+    }
+]
