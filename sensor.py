@@ -8,7 +8,7 @@ humidity = int(sys.argv[1])
 rain = False if sys.argv[2] == "False" else True
 time_to_dry = float(sys.argv[3])
 mqqtc_server = sys.argv[4]
-id = int(sys.argv[5])
+id = str(sys.argv[5])
 sector_id = None
 desired_humidity = None
 
@@ -27,7 +27,7 @@ def on_message(mqttc, obj, msg):
             msg_dict = json.loads(msg.payload)
             for sector in msg_dict["sectors"]:
                 if sector["sensor_id"] == id:
-                    sector_id = int(sector["id"])
+                    sector_id = str(sector["id"])
                     desired_humidity = int(sector["desired_humidity"])
 
         except Exception as e:
@@ -41,7 +41,7 @@ def on_message(mqttc, obj, msg):
             if str(sprinkling_data["rain"]).lower() != "none":
                 rain = True if sprinkling_data["rain"].lower() == "true" else False
             else:
-                sprinkler_id = int(sprinkling_data["sprinkler_id"])
+                sprinkler_id = str(sprinkling_data["sprinkler_id"])
                 if str(sprinkling_data["is_watering"]).lower() == "true":
                     working_sprinklers.append(sprinkler_id)
                 else:
