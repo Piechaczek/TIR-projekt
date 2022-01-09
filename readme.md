@@ -1,4 +1,4 @@
-System Nawiadniający TIR
+Irrigation System - IoT
 ===
 ## Requirements
 * geopy
