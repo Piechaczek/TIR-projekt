@@ -17,5 +17,5 @@ $ pip install geopy
 
 ## Run
 ```
-$ python controller2.py
+$ python controller_gui.py
 ```
