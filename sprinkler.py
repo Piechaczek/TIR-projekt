@@ -6,7 +6,7 @@ from threading import Thread
 import mosquitto
 
 mqttc_server = sys.argv[1]
-id = sys.argv[2]
+id = str(sys.argv[2])
 time_to_water = int(sys.argv[3])
 sector_id = None
 mid_to_water = None
@@ -24,12 +24,12 @@ def on_message(mqttc, obj, msg):
             msg_dict = json.loads(msg.payload)
             for sector in msg_dict["sectors"]:
                 for sprinkler in sector["sprinklers"]:
-                    if sprinkler == id:
-                        sector_id = sector["id"]
+                    if str(sprinkler) == id:
+                        sector_id = str(sector["id"])
         except Exception as e:
             print("json with incorrect format, " + str(e))
     elif msg.topic == "agh/iot/project9/active_sector":
-        if msg.payload == sector_id:
+        if str(msg.payload, 'utf-8') == sector_id:
             Thread(target=do_watering).start()
             
 
