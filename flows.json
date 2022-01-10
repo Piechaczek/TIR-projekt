@@ -100,7 +100,7 @@
         "y": 80,
         "wires": [
             [
-                "48a54cb9abfa582c"
+                "f96c784df937b7aa"
             ]
         ]
     },
@@ -109,17 +109,17 @@
         "type": "function",
         "z": "6c4187d2071ea8bf",
         "name": "Read sector",
-        "func": "msg.sensor_id = msg.topic.split('/')[4];\nvar sector;\nfor (const sector of global.get(\"config\").sectors){\n    if (sector.sensor_id == msg.sensor_id){\n        msg.sector = sector;\n        break;\n    }\n}\nreturn msg;",
+        "func": "var ret = [];\n\nvar sector;\nfor (const sector of global.get(\"config\").sectors){\n    if (sector.sensor_id == msg.sensor_id){\n        msg.sector = sector;\n        let x = Object.assign({}, msg);\n        ret.push(x);\n    }\n}\n\nreturn [ ret ];",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 250,
-        "y": 140,
+        "x": 350,
+        "y": 200,
         "wires": [
             [
-                "f96c784df937b7aa"
+                "cf53c8521c391698"
             ]
         ]
     },
@@ -448,17 +448,17 @@
         "type": "function",
         "z": "6c4187d2071ea8bf",
         "name": "Check and add waiting sensor",
-        "func": "var sensors = global.get('sensors_waiting');\nfor(let sensor of sensors){\n    if(msg.sensor_id == sensor.id){\n        return null;\n    }\n}\nvar new_sensor = {id: msg.sensor_id, sprinklers: []};\nsensors.push(new_sensor);\nglobal.set('sensors_waiting', sensors);\n\nreturn msg;",
+        "func": "msg.sensor_id = msg.topic.split('/')[4];\n\nvar sensors = global.get('sensors_waiting');\nfor(let sensor of sensors){\n    if(msg.sensor_id == sensor.id){\n        return null;\n    }\n}\nvar new_sensor = {id: msg.sensor_id, sprinklers: []};\nsensors.push(new_sensor);\nglobal.set('sensors_waiting', sensors);\n\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 330,
-        "y": 200,
+        "x": 270,
+        "y": 140,
         "wires": [
             [
-                "cf53c8521c391698"
+                "48a54cb9abfa582c"
             ]
         ]
     },
