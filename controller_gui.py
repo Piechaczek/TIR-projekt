@@ -297,7 +297,7 @@ def handle_weather_forecast(data, city):
 
 def send_data():
     mqttc = mosquitto.Mosquitto()
-    mqttc.connect("127.0.0.1", 1883, 60)
+    mqttc.connect("broker.emqx.io", 1883, 60)
 
     data = {"sectors": []}
 
